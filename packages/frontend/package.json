@@ -1,0 +1,19 @@
+{
+    "name": "@kennofizet/packages-core-frontend",
+    "version": "1.0.1",
+    "description": "Core frontend utilities for RewardPlay — token auth, axios setup",
+    "main": "./src/index.js",
+    "module": "./src/index.js",
+    "exports": {
+        ".": "./src/index.js"
+    },
+    "author": "KennoFizet",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kennofizet/packages-core.git"
+    },
+    "peerDependencies": {
+        "axios": ">=1.0.0"
+    }
+}
