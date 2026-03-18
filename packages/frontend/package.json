@@ -5,7 +5,9 @@
     "main": "./src/index.js",
     "module": "./src/index.js",
     "exports": {
-        ".": "./src/index.js"
+        ".": "./src/index.js",
+        "./ZoneSetting": "./src/components/ZoneSetting.vue",
+        "./api/zoneApi": "./src/api/zoneApi.js"
     },
     "author": "KennoFizet",
     "license": "MIT",
@@ -14,6 +16,7 @@
         "url": "git+https://github.com/kennofizet/packages-core.git"
     },
     "peerDependencies": {
-        "axios": ">=1.0.0"
+        "axios": ">=1.0.0",
+        "vue": "^3.2.0"
     }
 }

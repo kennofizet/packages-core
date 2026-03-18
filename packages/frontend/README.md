@@ -18,3 +18,23 @@ Other packages (e.g. `********-frontend`) extend or consume the components and u
 ```bash
 npm install @kennofizet/packages-core-frontend
 ```
+
+## Zone setting (CRUD + members)
+
+For apps that need zone management UI (create/edit/delete zones, assign/remove members), use the **ZoneSetting** component. It uses the core backend zone APIs; only managers can edit/delete/create/assign (based on `is_manager` from `GET /player/zones`).
+
+**Setup:** Create the zone API with `createCoreZoneApi(coreUrl, token, axios)`, then provide it and register the component:
+
+```js
+import { createApp } from 'vue'
+import { createCoreZoneApi, installZoneSetting } from '@kennofizet/packages-core-frontend'
+import axios from 'axios'
+import App from './App.vue'
+
+const app = createApp(App)
+const zoneApi = createCoreZoneApi('https://your-api/api/knf', yourToken, axios)
+installZoneSetting(app, zoneApi)
+app.mount('#app')
+```
+
+Use `<KnfCoreZoneSetting />` in your template. The component injects `knfCoreZoneApi`; you can pass props for labels (e.g. `title`, `createLabel`, `editLabel`). Non-managers see a read-only message and their zones list.
