@@ -39,7 +39,7 @@ class ValidateCoreToken
         }
 
         $serverColumn = config('packages-core.user_server_id_column');
-        $user = $this->resolveUserWithServer($userId, $serverColumn);
+        $user = $this->resolveUserWithServer($userId, $serverColumn, forgetGlobal: true);
 
         if (empty($user)) {
             return $this->apiErrorResponse('User not found', 404);
@@ -144,9 +144,15 @@ class ValidateCoreToken
         return null;
     }
 
-    protected function resolveUserWithServer(int $userId, ?string $serverColumn = null)
+    protected function resolveUserWithServer(int $userId, ?string $serverColumn = null, bool $forgetGlobal = false)
     {
-        $user = \Kennofizet\PackagesCore\Models\User::byId($userId)->first();
+        $query = \Kennofizet\PackagesCore\Models\User::query();
+
+        if ($forgetGlobal) {
+            $query->withoutGlobalScope('by_server_user');
+        }
+
+        $user = $query->byId($userId)->first();
 
         if (empty($user)) {
             return null;
