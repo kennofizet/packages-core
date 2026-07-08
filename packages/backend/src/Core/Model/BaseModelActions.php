@@ -2,6 +2,8 @@
 
 namespace Kennofizet\PackagesCore\Core\Model;
 
+use Kennofizet\PackagesCore\Models\User;
+
 trait BaseModelActions
 {
     public static function arrayRemoveEmpty($data)
@@ -24,6 +26,43 @@ trait BaseModelActions
             return null;
         }
         return (int) $userId;
+    }
+
+    /**
+     * Resolve user row for the current X-Knf-Token request (knf_core_user_id).
+     * Same lookup rules as ValidateCoreToken — change here only when token user resolution changes.
+     */
+    public static function currentUser(): ?User
+    {
+        $userId = self::currentUserId();
+        if ($userId === null || $userId < 1) {
+            return null;
+        }
+
+        return self::resolveUserById($userId);
+    }
+
+    /**
+     * Load packages-core User by id (optionally bypass server global scope).
+     */
+    public static function resolveUserById(int $userId, bool $forgetServerGlobalScope = true): ?User
+    {
+        $query = User::query();
+        if ($forgetServerGlobalScope) {
+            $query->withoutGlobalScope('by_server_user');
+        }
+
+        $user = $query->byId($userId)->first();
+        if ($user === null) {
+            return null;
+        }
+
+        $serverColumn = config('packages-core.user_server_id_column');
+        if (!empty($serverColumn) && (empty($user->{$serverColumn}) || $user->{$serverColumn} === null)) {
+            return null;
+        }
+
+        return $user;
     }
 
     /**

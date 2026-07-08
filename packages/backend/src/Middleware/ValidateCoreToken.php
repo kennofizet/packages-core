@@ -9,6 +9,7 @@ use Kennofizet\PackagesCore\Models\ZoneUser;
 use Kennofizet\PackagesCore\Models\ServerManager;
 use Kennofizet\PackagesCore\Models\Zone;
 use Kennofizet\PackagesCore\Services\SeasonService;
+use Kennofizet\PackagesCore\Core\Model\BaseModelActions;
 use Kennofizet\PackagesCore\Traits\GlobalDataTrait;
 
 class ValidateCoreToken
@@ -39,7 +40,7 @@ class ValidateCoreToken
         }
 
         $serverColumn = config('packages-core.user_server_id_column');
-        $user = $this->resolveUserWithServer($userId, $serverColumn, forgetGlobal: true);
+        $user = BaseModelActions::resolveUserById($userId, forgetServerGlobalScope: true);
 
         if (empty($user)) {
             return $this->apiErrorResponse('User not found', 404);
@@ -144,31 +145,6 @@ class ValidateCoreToken
         return null;
     }
 
-    protected function resolveUserWithServer(int $userId, ?string $serverColumn = null, bool $forgetGlobal = false)
-    {
-        $query = \Kennofizet\PackagesCore\Models\User::query();
-
-        if ($forgetGlobal) {
-            $query->withoutGlobalScope('by_server_user');
-        }
-
-        $user = $query->byId($userId)->first();
-
-        if (empty($user)) {
-            return null;
-        }
-
-        if (empty($serverColumn)) {
-            return $user;
-        }
-
-        if (empty($user->{$serverColumn}) || $user->{$serverColumn} === null) {
-            return false;
-        }
-
-        return $user;
-    }
-
     protected function getUserManagedZoneIds(int $userId): array
     {
         $serverIds = ServerManager::byUser($userId)->pluck('server_id')->toArray();
@@ -205,8 +181,8 @@ class ValidateCoreToken
             return $managerNull ? null : null;
         }
 
-        $user = $this->resolveUserWithServer($userId, $serverColumn);
-        if (empty($user) || $user === false) {
+        $user = BaseModelActions::resolveUserById($userId, forgetServerGlobalScope: false);
+        if ($user === null) {
             return null;
         }
 
